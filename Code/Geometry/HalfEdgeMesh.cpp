@@ -133,8 +133,8 @@ bool HalfEdgeMesh::AddHalfEdgePair(unsigned int v1, unsigned int v2, unsigned in
   edge2.vert = v2;
 
   // Connect the verts to the edges
-  v(v2).edge = indx1;
-  v(v1).edge = indx2;
+  v(v1).edge = indx1;
+  v(v2).edge = indx2;
 
   // Store the edges in mEdges
   mEdges.push_back(edge1);
@@ -240,11 +240,12 @@ std::vector<unsigned int> HalfEdgeMesh::FindNeighborVertices(unsigned int vertex
   // Collected vertices, sorted counter clockwise!
   std::vector<unsigned int> oneRing;
   unsigned int firstEdge = v(vertexIndex).edge;
-  unsigned int tmpEdge = firstEdge;
+  unsigned int tmpEdge = e(firstEdge).pair;
+  firstEdge = tmpEdge;
 
 	do{
 		oneRing.push_back(e(tmpEdge).vert);
-		tmpEdge = e(e(tmpEdge).pair).prev;
+		tmpEdge = e(e(tmpEdge).prev).pair;
 	} while(tmpEdge != firstEdge);
 
   return oneRing;
@@ -325,7 +326,7 @@ float HalfEdgeMesh::VertexCurvature(unsigned int vertexIndex) const
     //area += Cross((vi-vj), (nextPos-vj)).Length()*.5;
 	area += (cotAlpha + cotBeta)*cVec.Norm();
   }
-  return ( 2*M_PI - angleSum ) / (area*0.125f);
+  return (( 2*M_PI - angleSum ) / (area)) *0.125f;
 }
 
 // mean curvature

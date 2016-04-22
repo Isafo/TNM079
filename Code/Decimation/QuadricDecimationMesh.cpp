@@ -49,19 +49,62 @@ void QuadricDecimationMesh::computeCollapse(EdgeCollapse * collapse)
   // Compute collapse->position and collapse->cost here
   // based on the quadrics at the edge endpoints
 
-	//Matrix4x4<float> Q1 = mQuadrics.at(e(collapse->halfEdge).vert);
-	//Matrix4x4<float> Q2 = mQuadrics.at(e(e(collapse->halfEdge).pair).vert);
+	Matrix4x4<float> Q1 = mQuadrics.at(e(collapse->halfEdge).vert);
+	Matrix4x4<float> Q2 = mQuadrics.at(e(e(collapse->halfEdge).pair).vert);
 
-	//Vector4<float> newPos = Vector4<float>(0.0f, 0.0f, 0.0f, 1.0f);
-	//
-	//Matrix4x4<float> Q12 = Q1 + Q2;
-	//Matrix4x4<float> Q12copy(Q12);
-	//Q12copy(3,0) = 0; Q12copy(3,1) = 0;Q12copy(3,2) = 0; Q12copy(3,3) = 1;
+	Vector4<float> newPos = Vector4<float>(0.0f, 0.0f, 0.0f, 1.0f);
+	
+	Matrix4x4<float> Q12 = Q1 + Q2;
+	Matrix4x4<float> Q12copy(Q12);
+	Q12copy(3,0) = 0; Q12copy(3,1) = 0;Q12copy(3,2) = 0; Q12copy(3,3) = 1;
 
-	//newPos = Q12copy.Inverse()*newPos;
+	if(!Q12copy.IsSingular())
+		newPos = Q12copy.Inverse()*newPos;
+	else {
+		
+		newPos = Vector4<float>(v(e(collapse->halfEdge).vert).pos[0], 
+								v(e(collapse->halfEdge).vert).pos[1],
+								v(e(collapse->halfEdge).vert).pos[2],
+								1.0f);
 
-	//collapse->position = newPos;
-	//collapse->cost = newPos*(Q12*newPos);
+		float cost1 = newPos*(Q12*newPos);
+
+		newPos = Vector4<float>(v(e(e(collapse->halfEdge).pair).vert).pos[0], 
+								v(e(e(collapse->halfEdge).pair).vert).pos[1],
+								v(e(e(collapse->halfEdge).pair).vert).pos[2],
+								1.0f);
+
+		float cost2 = newPos*(Q12*newPos);
+
+		newPos = Vector4<float>((v(e(e(collapse->halfEdge).pair).vert).pos[0] - v(e(collapse->halfEdge).vert).pos[0]) / 2.0f, 
+								(v(e(e(collapse->halfEdge).pair).vert).pos[1] - v(e(collapse->halfEdge).vert).pos[1]) / 2.0f,
+								(v(e(e(collapse->halfEdge).pair).vert).pos[2] - v(e(collapse->halfEdge).vert).pos[2]) / 2.0f,
+								1.0f);
+
+		float cost3 = newPos*(Q12*newPos);
+
+		collapse->cost = std::min( cost3,std::min(cost2, cost1));
+		if(collapse->cost == cost1)
+			collapse->position = Vector3<float>(v(e(collapse->halfEdge).vert).pos[0], 
+								v(e(collapse->halfEdge).vert).pos[1],
+								v(e(collapse->halfEdge).vert).pos[2]);
+		else if(collapse->cost == cost2) 
+			collapse->position = Vector3<float>(v(e(e(collapse->halfEdge).pair).vert).pos[0], 
+								v(e(e(collapse->halfEdge).pair).vert).pos[1],
+								v(e(e(collapse->halfEdge).pair).vert).pos[2]);
+		else
+			collapse->position = Vector3<float>((v(e(e(collapse->halfEdge).pair).vert).pos[0] - v(e(collapse->halfEdge).vert).pos[0]) / 2.0f, 
+								(v(e(e(collapse->halfEdge).pair).vert).pos[1] - v(e(collapse->halfEdge).vert).pos[1]) / 2.0f,
+								(v(e(e(collapse->halfEdge).pair).vert).pos[2] - v(e(collapse->halfEdge).vert).pos[2]) / 2.0f);
+
+		return;
+	}
+
+
+	
+
+	collapse->position = Vector3<float>(newPos[0], newPos[1], newPos[2]);
+	collapse->cost = newPos*(Q12*newPos);
 
   std::cerr << "computeCollapse in QuadricDecimationMesh is implemented, maybe\n";
 }
@@ -85,11 +128,11 @@ Matrix4x4<float> QuadricDecimationMesh::createQuadricForVert(unsigned int indx) 
 
   //// The quadric for a vertex is the sum of all the quadrics for the adjacent faces
 
-  //std::vector<unsigned int> nFaces = FindNeighborFaces(indx);
+  std::vector<unsigned int> nFaces = FindNeighborFaces(indx);
 
-  //for(const auto& currFace : nFaces){
-	 //Q += createQuadricForFace(currFace);
-  //}
+  for(const auto& currFace : nFaces){
+	 Q += createQuadricForFace(currFace);
+  }
 
   return Q;
 }
@@ -102,29 +145,29 @@ Matrix4x4<float> QuadricDecimationMesh::createQuadricForFace(unsigned int indx) 
   // Calculate the quadric (outer product of plane parameters) for a face
   // here using the formula from Garland and Heckbert
 
-	//Vector3<float> norm = mFaces.at(indx).normal;
-	//Vector3<float> vert = v(e(mFaces.at(indx).edge).vert).pos;
+	Vector3<float> norm = mFaces.at(indx).normal;
+	Vector3<float> vert = v(e(mFaces.at(indx).edge).vert).pos;
 
-	//float a = norm[0];
-	//float b = norm[1];
-	//float c = norm[2];
-	//float d = -a*vert[0] - b*vert[1] - c*vert[2];
+	float a = norm[0];
+	float b = norm[1];
+	float c = norm[2];
+	float d = -a*vert[0] - b*vert[1] - c*vert[2];
 
-	////Vector4<float> p = Vector4<float>(norm[0], norm[1], norm[2], d);
+	//Vector4<float> p = Vector4<float>(norm[0], norm[1], norm[2], d);
 
-	//float m[4][4];
-	//m[0][0] = a*a; m[0][1] = a*b; m[0][2] = a*c; m[0][3] = a*d;
-	//m[1][0] = a*b; m[1][1] = b*b; m[1][2] = b*c; m[1][3] = b*d;
-	//m[2][0] = a*c; m[2][1] = c*b; m[2][2] = c*c; m[2][3] = c*d;
-	//m[3][0] = a*d; m[3][1] = d*b; m[3][2] = d*c; m[3][3] = d*d;
+	float m[4][4];
+	m[0][0] = a*a; m[0][1] = a*b; m[0][2] = a*c; m[0][3] = a*d;
+	m[1][0] = a*b; m[1][1] = b*b; m[1][2] = b*c; m[1][3] = b*d;
+	m[2][0] = a*c; m[2][1] = c*b; m[2][2] = c*c; m[2][3] = c*d;
+	m[3][0] = a*d; m[3][1] = d*b; m[3][2] = d*c; m[3][3] = d*d;
 
-	//Matrix4x4<float> Kp(m);
+	Matrix4x4<float> Kp(m);
 
-	  float q[4][4] = {{0,0,0,0},
-                   {0,0,0,0},
-                   {0,0,0,0},
-                   {0,0,0,0}};
-  Matrix4x4<float> Kp(q);
+	 //float q[4][4] = {{0,0,0,0},
+  //                 {0,0,0,0},
+  //                 {0,0,0,0},
+  //                 {0,0,0,0}};
+	 //Matrix4x4<float> Kp(q);
 
   return Kp;
 }
