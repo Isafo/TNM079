@@ -44,10 +44,76 @@ void QuadricDecimationMesh::Initialize()
 /*!
  * \param[in,out] collapse The edge collapse object to (re-)compute, DecimationMesh::EdgeCollapse
  */
-void QuadricDecimationMesh::computeCollapse(EdgeCollapse * collapse)
-{
-  // Compute collapse->position and collapse->cost here
-  // based on the quadrics at the edge endpoints
+//void QuadricDecimationMesh::computeCollapse(EdgeCollapse * collapse)
+//{
+//  // Compute collapse->position and collapse->cost here
+//  // based on the quadrics at the edge endpoints
+//
+//	Matrix4x4<float> Q1 = mQuadrics.at(e(collapse->halfEdge).vert);
+//	Matrix4x4<float> Q2 = mQuadrics.at(e(e(collapse->halfEdge).pair).vert);
+//
+//	Vector4<float> newPos = Vector4<float>(0.0f, 0.0f, 0.0f, 1.0f);
+//	
+//	Matrix4x4<float> Q12 = Q1 + Q2;
+//	Matrix4x4<float> Q12copy(Q12);
+//	Q12copy(3,0) = 0; Q12copy(3,1) = 0;Q12copy(3,2) = 0; Q12copy(3,3) = 1;
+//
+//	if(!Q12copy.IsSingular())
+//		newPos = Q12copy.Inverse()*newPos;
+//	else {
+//		
+//		newPos = Vector4<float>(v(e(collapse->halfEdge).vert).pos[0], 
+//								v(e(collapse->halfEdge).vert).pos[1],
+//								v(e(collapse->halfEdge).vert).pos[2],
+//								1.0f);
+//
+//		float cost1 = newPos*(Q12*newPos);
+//
+//		newPos = Vector4<float>(v(e(e(collapse->halfEdge).pair).vert).pos[0], 
+//								v(e(e(collapse->halfEdge).pair).vert).pos[1],
+//								v(e(e(collapse->halfEdge).pair).vert).pos[2],
+//								1.0f);
+//
+//		float cost2 = newPos*(Q12*newPos);
+//
+//		newPos = Vector4<float>((v(e(e(collapse->halfEdge).pair).vert).pos[0] - v(e(collapse->halfEdge).vert).pos[0]) / 2.0f, 
+//								(v(e(e(collapse->halfEdge).pair).vert).pos[1] - v(e(collapse->halfEdge).vert).pos[1]) / 2.0f,
+//								(v(e(e(collapse->halfEdge).pair).vert).pos[2] - v(e(collapse->halfEdge).vert).pos[2]) / 2.0f,
+//								1.0f);
+//
+//		float cost3 = newPos*(Q12*newPos);
+//
+//		collapse->cost = std::min( cost3,std::min(cost2, cost1));
+//		if(collapse->cost == cost1)
+//			collapse->position = Vector3<float>(v(e(collapse->halfEdge).vert).pos[0], 
+//								v(e(collapse->halfEdge).vert).pos[1],
+//								v(e(collapse->halfEdge).vert).pos[2]);
+//		else if(collapse->cost == cost2) 
+//			collapse->position = Vector3<float>(v(e(e(collapse->halfEdge).pair).vert).pos[0], 
+//								v(e(e(collapse->halfEdge).pair).vert).pos[1],
+//								v(e(e(collapse->halfEdge).pair).vert).pos[2]);
+//		else
+//			collapse->position = Vector3<float>((v(e(e(collapse->halfEdge).pair).vert).pos[0] - v(e(collapse->halfEdge).vert).pos[0]) / 2.0f, 
+//								(v(e(e(collapse->halfEdge).pair).vert).pos[1] - v(e(collapse->halfEdge).vert).pos[1]) / 2.0f,
+//								(v(e(e(collapse->halfEdge).pair).vert).pos[2] - v(e(collapse->halfEdge).vert).pos[2]) / 2.0f);
+//
+//		return;
+//	}
+//
+//
+//	
+//
+//	collapse->position = Vector3<float>(newPos[0], newPos[1], newPos[2]);
+//	collapse->cost = newPos*(Q12*newPos);
+//
+//  std::cerr << "computeCollapse in QuadricDecimationMesh is implemented, maybe\n";
+//}
+
+void QuadricDecimationMesh::computeCollapse(EdgeCollapse * collapse) {
+	// Compute collapse->position and collapse->cost here
+	// based on the quadrics at the edge endpoints
+
+	Vector3<float> viewAngle = Vector3<float>(0.0f, 0.0f, -1.0f);
 
 	Matrix4x4<float> Q1 = mQuadrics.at(e(collapse->halfEdge).vert);
 	Matrix4x4<float> Q2 = mQuadrics.at(e(e(collapse->halfEdge).pair).vert);
@@ -97,16 +163,26 @@ void QuadricDecimationMesh::computeCollapse(EdgeCollapse * collapse)
 								(v(e(e(collapse->halfEdge).pair).vert).pos[1] - v(e(collapse->halfEdge).vert).pos[1]) / 2.0f,
 								(v(e(e(collapse->halfEdge).pair).vert).pos[2] - v(e(collapse->halfEdge).vert).pos[2]) / 2.0f);
 
+		// angle
+		Vector3<float> newNorm = v(e(collapse->halfEdge).vert).normal + v(e(e(collapse->halfEdge).pair).vert).normal;
+		newNorm.Normalize();
+
+		float angle = acos(viewAngle * newNorm);
+
+		collapse->cost += (3.14 - angle)/30.0f;
+
 		return;
 	}
 
+	// angle	
+	Vector3<float> newNorm = v(e(collapse->halfEdge).vert).normal + v(e(e(collapse->halfEdge).pair).vert).normal;
+	newNorm.Normalize();
 
-	
+	float angle = acos(viewAngle * newNorm);
 
 	collapse->position = Vector3<float>(newPos[0], newPos[1], newPos[2]);
 	collapse->cost = newPos*(Q12*newPos);
-
-  std::cerr << "computeCollapse in QuadricDecimationMesh is implemented, maybe\n";
+	collapse->cost += (3.14 - angle)/30.0f;
 }
 
 /*! After each edge collapse the vertex properties need to be updated */

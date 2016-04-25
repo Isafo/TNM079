@@ -237,16 +237,16 @@ void HalfEdgeMesh::Validate()
  */
 std::vector<unsigned int> HalfEdgeMesh::FindNeighborVertices(unsigned int vertexIndex) const
 {
-  // Collected vertices, sorted counter clockwise!
-  std::vector<unsigned int> oneRing;
-  unsigned int firstEdge = v(vertexIndex).edge;
-  unsigned int tmpEdge = e(firstEdge).pair;
-  firstEdge = tmpEdge;
+	// Collected vertices, sorted counter clockwise!
+	std::vector<unsigned int> oneRing;
+	
+	unsigned int firstEdge = v(vertexIndex).edge;
+	unsigned int currEdge = firstEdge;
 
-	do{
-		oneRing.push_back(e(tmpEdge).vert);
-		tmpEdge = e(e(tmpEdge).prev).pair;
-	} while(tmpEdge != firstEdge);
+	do {
+		oneRing.push_back(e(e(currEdge).pair).vert);
+		currEdge = e(e(currEdge).prev).pair;
+	} while(currEdge != firstEdge);
 
   return oneRing;
 }
@@ -258,18 +258,17 @@ std::vector<unsigned int> HalfEdgeMesh::FindNeighborVertices(unsigned int vertex
  */
 std::vector<unsigned int> HalfEdgeMesh::FindNeighborFaces(unsigned int vertexIndex) const
 {
-  // Collected faces, sorted counter clockwise!
-  std::vector<unsigned int> foundFaces;
-
+	// Collected faces, sorted counter clockwise!
+	std::vector<unsigned int> foundFaces;
 	unsigned int firstEdge = v(vertexIndex).edge;
-	unsigned int tmpEdge = firstEdge;
+	unsigned int currEdge = firstEdge;
 
-	do{
-		foundFaces.push_back(e(tmpEdge).face);
-		tmpEdge = e(e(tmpEdge).pair).prev;
-	} while(tmpEdge != firstEdge);
+	do {
+		foundFaces.push_back(e(currEdge).face);
+		currEdge = e(e(currEdge).prev).pair;
+	} while(currEdge != firstEdge);
 
-  return foundFaces;
+	return foundFaces;
 }
 
 
