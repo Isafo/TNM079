@@ -13,17 +13,33 @@ UniformCubicSplineSubdivisionCurve::UniformCubicSplineSubdivisionCurve(const std
 
 void UniformCubicSplineSubdivisionCurve::Subdivide()
 {
-  // Allocate space for new coefficients
-  std::vector<Vector3<float> > newc;
+	// Allocate space for new coefficients
+	std::vector<Vector3<float> > newc;
 
-  assert(mCoefficients.size() > 4 && "Need at least 5 points to subdivide");
+	assert(mCoefficients.size() > 4 && "Need at least 5 points to subdivide");
 
-  // Implement the subdivision scheme for a natural cubic spline here
+	// Implement the subdivision scheme for a natural cubic spline here
 
-  // If 'mCoefficients' had size N, how large should 'newc' be? Perform a check here!
-  assert(true && "Incorrect number of new coefficients!");
+	//newc.push_back(0.125f*(mCoefficients.at(0) + 6.0f*mCoefficients.at(0) + mCoefficients.at(1)));
+	newc.push_back(mCoefficients.front());
+	newc.push_back(0.125f*(4.0f*mCoefficients.at(0) + 4.0f*mCoefficients.at(1)));
 
- mCoefficients = newc;
+	for (int i = 1; i < mCoefficients.size() - 1; ++i){
+		newc.push_back(0.125f*(mCoefficients.at(i-1) + 6.0f*mCoefficients.at(i) + mCoefficients.at(i+1)));
+		newc.push_back(0.125f*(4.0f*mCoefficients.at(i) + 4.0f*mCoefficients.at(i+1)));
+	}
+
+	//newc.push_back(0.125f*(mCoefficients.at(mCoefficients.size() - 2) + 6.0f*mCoefficients.back() + mCoefficients.back()));
+	newc.push_back(mCoefficients.back());
+
+
+	// If 'mCoefficients' had size N, how large should 'newc' be? Perform a check here!
+	if(newc.size() != mCoefficients.size() + mCoefficients.size() - 1)
+		std::cout << "onej" << std::endl;
+	assert(true && "Incorrect number of new coefficients!");
+
+
+	mCoefficients = newc;
 }
 
 
