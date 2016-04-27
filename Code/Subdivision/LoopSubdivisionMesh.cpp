@@ -104,6 +104,8 @@ Vector3<float> LoopSubdivisionMesh::VertexRule(unsigned int vertexIndex)
   // Get the current vertex
   Vector3<float> vtx = v(vertexIndex).pos;
 
+  Vector3<float> newVPos;
+
 
   return vtx;
 }

@@ -20,11 +20,22 @@ void UniformCubicSplineSubdivisionCurve::Subdivide()
 
 	// Implement the subdivision scheme for a natural cubic spline here
 
+	//newc.push_back(0.125f*(mCoefficients.at(0) + 6.0f*mCoefficients.at(0) + mCoefficients.at(1)));
+	newc.push_back(mCoefficients.front());
+	newc.push_back(0.125f*(4.0f*mCoefficients.at(0) + 4.0f*mCoefficients.at(1)));
 
+	for (int i = 1; i < mCoefficients.size() - 1; ++i){
+		newc.push_back(0.125f*(mCoefficients.at(i-1) + 6.0f*mCoefficients.at(i) + mCoefficients.at(i+1)));
+		newc.push_back(0.125f*(4.0f*mCoefficients.at(i) + 4.0f*mCoefficients.at(i+1)));
+	}
 
+	//newc.push_back(0.125f*(mCoefficients.at(mCoefficients.size() - 2) + 6.0f*mCoefficients.back() + mCoefficients.back()));
+	newc.push_back(mCoefficients.back());
 
 
 	// If 'mCoefficients' had size N, how large should 'newc' be? Perform a check here!
+	if(newc.size() != mCoefficients.size() + mCoefficients.size() - 1)
+		std::cout << "onej" << std::endl;
 	assert(true && "Incorrect number of new coefficients!");
 
 	mCoefficients = newc;
