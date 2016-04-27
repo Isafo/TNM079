@@ -261,7 +261,7 @@ Temporary Items
 include/
 lib/
 Data/
-Code-build2/
+Code-build/
 
 # RC files
 *.rc
