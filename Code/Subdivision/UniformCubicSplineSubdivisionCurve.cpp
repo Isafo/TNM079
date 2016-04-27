@@ -13,17 +13,21 @@ UniformCubicSplineSubdivisionCurve::UniformCubicSplineSubdivisionCurve(const std
 
 void UniformCubicSplineSubdivisionCurve::Subdivide()
 {
-  // Allocate space for new coefficients
-  std::vector<Vector3<float> > newc;
+	// Allocate space for new coefficients
+	std::vector<Vector3<float> > newc;
 
-  assert(mCoefficients.size() > 4 && "Need at least 5 points to subdivide");
+	assert(mCoefficients.size() > 4 && "Need at least 5 points to subdivide");
 
-  // Implement the subdivision scheme for a natural cubic spline here
+	// Implement the subdivision scheme for a natural cubic spline here
 
-  // If 'mCoefficients' had size N, how large should 'newc' be? Perform a check here!
-  assert(true && "Incorrect number of new coefficients!");
 
- mCoefficients = newc;
+
+
+
+	// If 'mCoefficients' had size N, how large should 'newc' be? Perform a check here!
+	assert(true && "Incorrect number of new coefficients!");
+
+	mCoefficients = newc;
 }
 
 

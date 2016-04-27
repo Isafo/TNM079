@@ -10,6 +10,7 @@
  *
  *************************************************************************************************/
 #include "QuadricDecimationMesh.h"
+#include "Geometry/SimpleMesh.h"
 
 const QuadricDecimationMesh::VisualizationMode QuadricDecimationMesh::QuadricIsoSurfaces = NewVisualizationMode("Quadric Iso Surfaces");
 
@@ -251,21 +252,47 @@ Matrix4x4<float> QuadricDecimationMesh::createQuadricForFace(unsigned int indx) 
 
 void QuadricDecimationMesh::Render()
 {
-  DecimationMesh::Render();
+	DecimationMesh::Render();
 
-  glEnable(GL_LIGHTING);
-  glMatrixMode(GL_MODELVIEW);
+	glEnable(GL_LIGHTING);
+	glMatrixMode(GL_MODELVIEW);
 
-  if (mVisualizationMode == QuadricIsoSurfaces)
-    {
-      // Apply transform
-      glPushMatrix(); // Push modelview matrix onto stack
+	if (mVisualizationMode == QuadricIsoSurfaces)
+	{
+		// Apply transform
+		//glPushMatrix(); // Push modelview matrix onto stack
+		Matrix4x4<float> Q1, R;
 
-      // Implement the quadric visualization here
-      std::cout << "Quadric visualization not implemented" << std::endl;
+		GLUquadricObj* mQuadric;// = gluNewQuadric();
+		mQuadric = gluNewQuadric();
 
-      // Restore modelview matrix
-      glPopMatrix();
-    }
+		// Implement the quadric visualization here
+		for(int i = 0; i < mUniqueVerts.size(); ++i) {
+			Q1 = mQuadrics.at(i);
+
+			if(Q1.CholeskyFactorization(R)){
+				if(!R.IsSingular()){
+					glPushMatrix();
+					R = R.Inverse();
+					R = R.Transpose();
+					
+					glMultMatrixf(R.GetArrayPtr());
+
+					glTranslatef(v(i).pos[0], v(i).pos[1], v(i).pos[2]);
+					//glTranslatef(1.0f, 1.0f, 1.0f);
+
+					gluSphere(mQuadric, 0.01f, 10, 10);
+
+					glPopMatrix();
+				}
+				
+			}
+		}
+
+		std::cout << "Quadric visualization probably not implemented" << std::endl;
+
+		// Restore modelview matrix
+		//glPopMatrix();
+	}
 }
 
