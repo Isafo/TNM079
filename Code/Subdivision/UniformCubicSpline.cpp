@@ -56,59 +56,18 @@ Vector3<float> UniformCubicSpline::GetValue(float t)
 {
 	Vector3<float> val;
 	float sum = 0;
-	//for (unsigned int i = 0; i < mCoefficients.size(); i++) {
-	//float bval = GetBSplineValue(i, t);
-	//val += mCoefficients.at(i)*bval;
-	//sum += bval;
-	//}
-
-	int i = floor(t);
-  
-	if(i >= 3){
-		float bval =  GetBSplineValue(i-3, t);
-		val += mCoefficients.at(i-3)*bval;
+	/*for (unsigned int i = 0; i < mCoefficients.size(); i++) {
+		float bval = GetBSplineValue(i, t);
+		val += mCoefficients.at(i)*bval;
 		sum += bval;
+	}*/
 
-		bval =  GetBSplineValue(i-2, t);
-		val += mCoefficients.at(i-2)*bval;
-		sum += bval;
-
-		bval =  GetBSplineValue(i-1, t);
-		val += mCoefficients.at(i-1)*bval;
-		sum += bval;
-
-		bval =  GetBSplineValue(i, t);
+	for (int i = floor(t) + 2; i >= 0 && i >= (floor(t) - 1); --i) {
+		float bval = GetBSplineValue(i, t);
 		val += mCoefficients.at(i)*bval;
 		sum += bval;
 	}
-	else if(i >= 2){
-		float bval =  GetBSplineValue(i-2, t);
-		val += mCoefficients.at(i-2)*bval;
-		sum += bval;
 
-		bval =  GetBSplineValue(i-1, t);
-		val += mCoefficients.at(i-1)*bval;
-		sum += bval;
-
-		bval =  GetBSplineValue(i, t);
-		val += mCoefficients.at(i)*bval;
-		sum += bval;
-	}
-	else if(i >= 1){
-		float bval =  GetBSplineValue(i-1, t);
-		val += mCoefficients.at(i-1)*bval;
-		sum += bval;
-
-		bval =  GetBSplineValue(i, t);
-		val += mCoefficients.at(i)*bval;
-		sum += bval;
-	}
-	else {
-		float bval =  GetBSplineValue(i, t);
-		val += mCoefficients.at(i)*bval;
-		sum += bval;
-	}
-	
 	return val;
 }
 
