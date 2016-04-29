@@ -230,8 +230,6 @@ Matrix4x4<float> QuadricDecimationMesh::createQuadricForFace(unsigned int indx) 
 	float c = norm[2];
 	float d = -a*vert[0] - b*vert[1] - c*vert[2];
 
-	//Vector4<float> p = Vector4<float>(norm[0], norm[1], norm[2], d);
-
 	float m[4][4];
 	m[0][0] = a*a; m[0][1] = a*b; m[0][2] = a*c; m[0][3] = a*d;
 	m[1][0] = a*b; m[1][1] = b*b; m[1][2] = b*c; m[1][3] = b*d;
@@ -239,12 +237,6 @@ Matrix4x4<float> QuadricDecimationMesh::createQuadricForFace(unsigned int indx) 
 	m[3][0] = a*d; m[3][1] = d*b; m[3][2] = d*c; m[3][3] = d*d;
 
 	Matrix4x4<float> Kp(m);
-
-	 //float q[4][4] = {{0,0,0,0},
-  //                 {0,0,0,0},
-  //                 {0,0,0,0},
-  //                 {0,0,0,0}};
-	 //Matrix4x4<float> Kp(q);
 
   return Kp;
 }
@@ -270,27 +262,22 @@ void QuadricDecimationMesh::Render()
 		for(int i = 0; i < mUniqueVerts.size(); ++i) {
 			Q1 = mQuadrics.at(i);
 
-			if(Q1.CholeskyFactorization(R)){
-				if(!R.IsSingular()){
+			//R = Matrix4x4<float>();
+
+			if(Q1.CholeskyFactorization(R)) {
+				if(!R.IsSingular()) {
 					glPushMatrix();
 					R = R.Inverse();
-					R = R.Transpose();
 					
-					glMultMatrixf(R.GetArrayPtr());
+					glMultMatrixf(R.ToGLMatrix().GetArrayPtr());
+					//glTranslatef(v(i).pos[0], v(i).pos[1], v(i).pos[2]);
 
-					glTranslatef(v(i).pos[0], v(i).pos[1], v(i).pos[2]);
-					//glTranslatef(1.0f, 1.0f, 1.0f);
-
-					gluSphere(mQuadric, 0.01f, 10, 10);
+					gluSphere(mQuadric, 20.0f, 10, 10);
 
 					glPopMatrix();
 				}
-				
 			}
 		}
-
-		std::cout << "Quadric visualization probably not implemented" << std::endl;
-
 		// Restore modelview matrix
 		//glPopMatrix();
 	}

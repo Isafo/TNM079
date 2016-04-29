@@ -135,7 +135,7 @@ Vector3<float> LoopSubdivisionMesh::EdgeRule(unsigned int edgeIndex)
 	Vector3<float> & v0 = v(e0.vert).pos;
 	Vector3<float> & v1 = v(e1.vert).pos;
 	Vector3<float> & v2 = v(e(e0.prev).vert).pos;
-	Vector3<float> & v3 = v(e(e1.next).vert).pos;
+	Vector3<float> & v3 = v(e(e1.prev).vert).pos;
 	Vector3<float> newVPos;
 	
 	//newVPos += v0*0.375f;
@@ -144,8 +144,8 @@ Vector3<float> LoopSubdivisionMesh::EdgeRule(unsigned int edgeIndex)
 	//newVPos += v3/8.0f;
 	newVPos = (v0+v1)*0.375f + (v2+v3)/8.0f;
 
-	return (v0 + v1) / 2;
-	//return newVPos;
+	//return (v0 + v1) / 2;
+	return newVPos;
 }
 
 //! Return weights for interior verts
