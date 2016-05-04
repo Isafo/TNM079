@@ -33,22 +33,28 @@ protected:
 class Union : public CSG_Operator
 {
 public:
-  Union(Implicit * l, Implicit * r) : CSG_Operator(l, r) {
-    // Compute the resulting (axis aligned) bounding box from
-    // the left and right children
-    mBox = BoxUnion(l->GetBoundingBox(), r->GetBoundingBox());
-  }
+	Union(Implicit * l, Implicit * r) : CSG_Operator(l, r) {
+		// Compute the resulting (axis aligned) bounding box from
+		// the left and right children
+		mBox = BoxUnion(l->GetBoundingBox(), r->GetBoundingBox());
+	}
 
-  virtual float GetValue(float x, float y, float z) const {
-    // The coordinates (x,y,z) are passed in from world space,
-    // remember to transform them into object space
-    // (Hint: Implicit::TransformW2O()). This
-    // is needed because the CSG operators are also implicit geometry
-    // and can be transformed like all implicit surfaces.
-    // Then, get values from left and right children and perform the
-    // boolean operation.
-    return 0;
-  }
+	virtual float GetValue(float x, float y, float z) const {
+		// The coordinates (x,y,z) are passed in from world space,
+		// remember to transform them into object space
+		// (Hint: Implicit::TransformW2O()). This
+		// is needed because the CSG operators are also implicit geometry
+		// and can be transformed like all implicit surfaces.
+		// Then, get values from left and right children and perform the
+		// boolean operation.
+
+		Implicit::TransformW2O(x, y, z);
+
+		float lVal = this->left->GetValue(x, y, z);
+		float rVal = this->right->GetValue(x, y, z);
+
+		return std::min(lVal, rVal);
+	}
 };
 
 
@@ -56,13 +62,19 @@ public:
 class Intersection : public CSG_Operator
 {
 public:
-  Intersection(Implicit * l, Implicit * r) : CSG_Operator(l, r) {
-    mBox = BoxIntersection(l->GetBoundingBox(), r->GetBoundingBox());
-  }
+	Intersection(Implicit * l, Implicit * r) : CSG_Operator(l, r) {
+		mBox = BoxIntersection(l->GetBoundingBox(), r->GetBoundingBox());
+	}
 
-  virtual float GetValue(float x, float y, float z) const {
-    return 0;
-  }
+	virtual float GetValue(float x, float y, float z) const {
+
+		Implicit::TransformW2O(x, y, z);
+
+		float lVal = this->left->GetValue(x, y, z);
+		float rVal = this->right->GetValue(x, y, z);
+
+		return std::max(lVal, rVal);
+	}
 };
 
 
@@ -70,13 +82,19 @@ public:
 class Difference : public CSG_Operator
 {
 public:
-  Difference(Implicit * l, Implicit * r) : CSG_Operator(l, r) {
-    mBox = l->GetBoundingBox();
-  }
+	Difference(Implicit * l, Implicit * r) : CSG_Operator(l, r) {
+		mBox = l->GetBoundingBox();
+	}
 
-  virtual float GetValue(float x, float y, float z) const {
-    return 0;
-  }
+	virtual float GetValue(float x, float y, float z) const {
+		
+		Implicit::TransformW2O(x, y, z);
+
+		float lVal = this->left->GetValue(x, y, z);
+		float rVal = this->right->GetValue(x, y, z);
+		
+		return std::max(lVal, -rVal);
+	}
 };
 
 

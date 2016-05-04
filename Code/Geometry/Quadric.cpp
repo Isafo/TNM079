@@ -24,7 +24,14 @@ Quadric::~Quadric(){}
  */
 float Quadric::GetValue(float x, float y, float z) const
 {
-  return 0;
+
+	Implicit::TransformW2O(x,y,z);
+
+	Vector4<float> p(x, y, z, 1.0f);
+
+	//float something = p.Transpose() *  this->mQuadric * p;
+	
+	return 0;
 }
 
 /*!
