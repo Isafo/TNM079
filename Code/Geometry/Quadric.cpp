@@ -24,14 +24,11 @@ Quadric::~Quadric(){}
  */
 float Quadric::GetValue(float x, float y, float z) const
 {
-
 	Implicit::TransformW2O(x,y,z);
 
 	Vector4<float> p(x, y, z, 1.0f);
-
-	//float something = p.Transpose() *  this->mQuadric * p;
 	
-	return 0;
+	return (p * (this->mQuadric * p));
 }
 
 /*!
@@ -39,6 +36,11 @@ float Quadric::GetValue(float x, float y, float z) const
  */
 Vector3<float> Quadric::GetGradient(float x, float y, float z) const
 {
-  return Vector3<float>(0,0,0);
+	Implicit::TransformW2O(x,y,z);
+	Vector4<float> p(x, y, z, 1.0f);
+
+	Vector4<float> grad = this->mQuadric * p;
+
+	return Vector3<float>(grad[0], grad[1], grad[2]);
 }
 

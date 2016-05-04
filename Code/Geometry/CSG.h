@@ -102,16 +102,22 @@ public:
 class BlendedUnion : public CSG_Operator
 {
 public:
-  BlendedUnion(Implicit * l, Implicit * r, int blend) : CSG_Operator(l, r), mBlend(blend) {
-    mBox = BoxUnion(l->GetBoundingBox(), r->GetBoundingBox());
-  }
+	BlendedUnion(Implicit * l, Implicit * r, int blend) : CSG_Operator(l, r), mBlend(blend) {
+		mBox = BoxUnion(l->GetBoundingBox(), r->GetBoundingBox());
+	}
 
-  virtual float GetValue(float x, float y, float z) const {
-    return 0;
-  }
+	virtual float GetValue(float x, float y, float z) const {
+
+		Implicit::TransformW2O(x, y, z);
+
+		float lVal = std::exp(-this->left->GetValue(x, y, z));
+		float rVal = std::exp(-this->right->GetValue(x, y, z));
+
+		return std::log(std::pow(std::pow(lVal, mBlend) + std::pow(rVal, mBlend), 1/mBlend));
+	}
 
 protected :
-  int mBlend;
+	int mBlend;
 };
 
 
@@ -119,16 +125,22 @@ protected :
 class BlendedIntersection : public CSG_Operator
 {
 public:
-  BlendedIntersection(Implicit * l, Implicit * r, int blend) : CSG_Operator(l, r), mBlend(blend) {
-    mBox = BoxUnion(l->GetBoundingBox(), r->GetBoundingBox());
-  }
+	BlendedIntersection(Implicit * l, Implicit * r, int blend) : CSG_Operator(l, r), mBlend(blend) {
+		mBox = BoxUnion(l->GetBoundingBox(), r->GetBoundingBox());
+	}
 
-  virtual float GetValue(float x, float y, float z) const {
-    return 0;
-  }
+	virtual float GetValue(float x, float y, float z) const {
+		
+		Implicit::TransformW2O(x, y, z);
+
+		float lVal = std::exp(-this->left->GetValue(x, y, z));
+		float rVal = std::exp(-this->right->GetValue(x, y, z));
+
+		return std::log(std::pow(std::pow(lVal, mBlend) + std::pow(rVal, mBlend), 1/mBlend));
+	}
 
 protected :
-  int mBlend;
+	int mBlend;
 };
 
 
@@ -136,16 +148,22 @@ protected :
 class BlendedDifference : public CSG_Operator
 {
 public:
-  BlendedDifference(Implicit * l, Implicit * r, int blend) : CSG_Operator(l, r), mBlend(blend) {
-    mBox = l->GetBoundingBox();
-  }
+	BlendedDifference(Implicit * l, Implicit * r, int blend) : CSG_Operator(l, r), mBlend(blend) {
+		mBox = l->GetBoundingBox();
+	}
 
-  virtual float GetValue(float x, float y, float z) const {
-    return 0;
-  }
+	virtual float GetValue(float x, float y, float z) const {
+		
+		Implicit::TransformW2O(x, y, z);
+
+		float lVal = std::exp(-this->left->GetValue(x, y, z));
+		float rVal = std::exp(-this->right->GetValue(x, y, z));
+
+		return std::log(std::pow(std::pow(lVal, mBlend) + std::pow(-rVal, mBlend), 1/mBlend));
+	}
 
 protected :
-  int mBlend;
+	int mBlend;
 };
 
 
