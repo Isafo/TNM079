@@ -118,9 +118,9 @@ Vector3<float> LoopSubdivisionMesh::VertexRule(unsigned int vertexIndex)
 	for(const auto& currVert : vertexN){
 		newVPos += v(currVert).pos*beta;
 	}
-	newVPos += vtx*(1.0f-beta);
+	newVPos += vtx*(1.0f - (nrOfVerts * beta));
 
-	return vtx;
+	return newVPos;
 }
 
 
