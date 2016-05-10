@@ -125,9 +125,9 @@ template<typename T>
 inline void EndianSwap(T* data, int num){
   if(sizeof(T) == sizeof(unsigned int)){
     unsigned int * tmpPtr = reinterpret_cast<unsigned int *>(data);
-    std::transform(tmpPtr, tmpPtr+num,
-                   tmpPtr,
-                   std::pointer_to_unary_function<unsigned int, unsigned int>(&EndianSwap));
+   // std::transform(tmpPtr, tmpPtr+num,
+   //                tmpPtr,
+   //                std::pointer_to_unary_function<unsigned int, unsigned int>(&EndianSwap));
   } else {
     // badness
   }
