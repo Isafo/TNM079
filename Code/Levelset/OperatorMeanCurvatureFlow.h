@@ -37,7 +37,7 @@ public :
   virtual float ComputeTimestep()
   {
     // Compute and return a stable timestep
-    return 1;
+	  return (std::pow(mLS->GetDx(), 2.0f)/(6*mAlpha))/2.0f;
   }
 
   virtual void Propagate(float time)
@@ -62,10 +62,28 @@ public :
   virtual float Evaluate(unsigned int i, unsigned int j, unsigned int k)
   {
     // Compute the rate of change (dphi/dt)
-    return 0;
+
+	  float dx = mLS->DiffXpm(i,j,k); float dx2 = dx*dx;
+	  float dy = mLS->DiffYpm(i,j,k); float dy2 = dy*dy;
+	  float dz = mLS->DiffZpm(i,j,k); float dz2 = dz*dz;
+
+	  float dyz = mLS->Diff2YZpm(i,j,k);
+	  float dxz = mLS->Diff2ZXpm(i,j,k);
+	  float dxy = mLS->Diff2XYpm(i,j,k);
+
+	  float dxx = mLS->Diff2Xpm(i,j,k);
+	  float dyy = mLS->Diff2Ypm(i,j,k);
+	  float dzz = mLS->Diff2Zpm(i,j,k);
+
+	  float denom = (2.0f*std::pow(dx2 + dy2 + dz2, 1.5f));
+	  
+
+	  float curvature = ( (dx2*(dyy + dzz) - 2*dy*dz*dyz)/denom ) +
+						( (dy2*(dxx + dzz) - 2*dx*dz*dxz)/denom ) + 
+						( (dz2*(dxx + dyy) - 2*dx*dy*dxy)/denom );
+
+	  return mAlpha*curvature*std::sqrt(dx2 + dy2 + dz2);
   }
-
-
 };
 
 #endif

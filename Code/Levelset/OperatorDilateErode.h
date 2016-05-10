@@ -37,7 +37,7 @@ public :
   virtual float ComputeTimestep()
   {
     // Compute and return a stable timestep
-    return 1;
+	  return (mLS->GetDx()/std::abs(mF))/2.0f;
   }
 
   virtual void Propagate(float time)
@@ -62,8 +62,12 @@ public :
 
   virtual float Evaluate(unsigned int i, unsigned int j, unsigned int k)
   {
-    // Compute the rate of change (dphi/dt)
-    return 0;
+
+    float ddx2, ddy2, ddz2;
+    Godunov(i,j,k, this->mF, ddx2, ddy2, ddz2);
+	// Compute the rate of change (dphi/dt)
+	return -this->mF*std::sqrt(ddx2*ddx2 + ddy2*ddy2 + ddz2*ddz2); 
+
   }
 
 

@@ -29,8 +29,9 @@ public :
 
   virtual float ComputeTimestep()
   {
+	  mTarget->GetDifferentialScale
     // Compute and return a stable timestep
-    return 1;
+    return (mLS->GetDx()/std::abs(mTarget->GetValue(x,y,z)))/2.0f;
   }
 
   virtual void Propagate(float time)
@@ -54,8 +55,14 @@ public :
 
   virtual float Evaluate(unsigned int i, unsigned int j, unsigned int k)
   {
+	  float x = i, y = j, z = k;
+
+	  mLS->TransformGridToWorld(x,y,z);
+
+	  Vector3<float> grad(mLS->DiffXpm(i,j,k), mLS->DiffYpm(i,j,k), mLS->DiffZpm(i,j,k));
+
     // Compute the rate of change (dphi/dt)
-    return 0;
+	  return mTarget->GetValue(x,y,z) * grad.Length();
   }
 
 

@@ -36,9 +36,12 @@ public :
 
   virtual float ComputeTimestep()
   {
-    // Compute and return a stable timestep
-    // (Hint: Function3D::GetMaxValue())
-    return 1;
+	// Compute and return a stable timestep
+	// (Hint: Function3D::GetMaxValue())
+	  Vector3<float> maxVec = this->mVectorField->GetMaxValue();
+	  float maxDim = std::max(std::max(maxVec[0], maxVec[1]), maxVec[2]);
+	  
+	  return (this->mLS->GetDx() / maxDim)/2.0f;
   }
 
   virtual void Propagate(float time)
@@ -63,11 +66,38 @@ public :
   {
     // Compute the rate of change (dphi/dt)
 
+	  float x = i; float y = j; float z = k;
+	  float dx, dy, dz;
+
+	  mLS->TransformGridToWorld(x,y,z);
+	  Vector3<float> V = this->mVectorField->GetValue(x,y,z);
+	  
+	  if(V[0] > 0)
+		  dx = mLS->DiffXp(i,j,k);
+	  else if(V[0] < 0)
+		  dx = mLS->DiffXm(i,j,k);
+	  else
+		  dx = 0.0f;
+
+	  if(V[1] > 0)
+		  dy = mLS->DiffYp(i,j,k);
+	  else if(V[1] < 0)
+		  dy = mLS->DiffYm(i,j,k);
+	  else
+		  dy = 0.0f;
+
+	  if(V[2] > 0)
+		  dz = mLS->DiffZp(i,j,k);
+	  else if(V[2] < 0)
+		  dz = mLS->DiffZm(i,j,k);
+	  else
+		  dz = 0.0f;
+
     // Remember that the point (i,j,k) is given in grid coordinates, while
     // the velocity field used for advection needs to be sampled in
     // world coordinates (x,y,z). You can use LevelSet::TransformGridToWorld()
     // for this task.
-    return 0;
+    return (-V)*(Vector3<float>(dx, dy, dz));
   }
 
 };
