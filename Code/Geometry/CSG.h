@@ -113,7 +113,7 @@ public:
 		float lVal = std::exp(-this->left->GetValue(x, y, z));
 		float rVal = std::exp(-this->right->GetValue(x, y, z));
 
-		return std::log(std::pow(std::pow(lVal, mBlend) + std::pow(rVal, mBlend), 1/mBlend));
+		return -std::log(std::pow(std::pow(lVal, mBlend) + std::pow(rVal, mBlend), 1.0f/mBlend));
 	}
 
 protected :
@@ -136,7 +136,7 @@ public:
 		float lVal = std::exp(-this->left->GetValue(x, y, z));
 		float rVal = std::exp(-this->right->GetValue(x, y, z));
 
-		return std::log(std::pow(std::pow(lVal, mBlend) + std::pow(rVal, mBlend), 1/mBlend));
+		return -std::log(std::pow(std::pow(lVal, -mBlend) + std::pow(rVal, -mBlend), -1.0f/mBlend));
 	}
 
 protected :
@@ -157,9 +157,9 @@ public:
 		Implicit::TransformW2O(x, y, z);
 
 		float lVal = std::exp(-this->left->GetValue(x, y, z));
-		float rVal = std::exp(-this->right->GetValue(x, y, z));
+		float rVal = std::exp(this->right->GetValue(x, y, z));
 
-		return std::log(std::pow(std::pow(lVal, mBlend) + std::pow(-rVal, mBlend), 1/mBlend));
+		return -std::log(std::pow(std::pow(lVal, -mBlend) + std::pow(rVal, -mBlend), -1.0f/mBlend));
 	}
 
 protected :
