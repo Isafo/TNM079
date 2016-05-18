@@ -41,6 +41,6 @@ Vector3<float> Quadric::GetGradient(float x, float y, float z) const
 
 	Vector4<float> grad = this->mQuadric * p;
 
-	return Vector3<float>(grad[0], grad[1], grad[2]);
+	return Vector3<float>(grad[0], grad[1], grad[2]).Normalize();
 }
 

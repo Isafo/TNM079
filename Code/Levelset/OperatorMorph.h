@@ -27,12 +27,22 @@ public :
 
   OperatorMorph(LevelSet * LS, const Implicit * target) : LevelSetOperator(LS), mTarget(target) { }
 
-  virtual float ComputeTimestep()
-  {
-	  mTarget->GetDifferentialScale
-    // Compute and return a stable timestep
-    return (mLS->GetDx()/std::abs(mTarget->GetValue(x,y,z)))/2.0f;
-  }
+	virtual float ComputeTimestep()
+	{
+		float max = mTarget->GetValue(0,0,0);
+
+		for(int i = 0; i < 10; i++){
+			for(int j = 0; j < 10; j++){
+				for(int k = 0; k < 10; k++){
+					if(mTarget->GetValue(i,j,k) > max)
+						max = mTarget->GetValue(i,j,k); 
+				}
+			}
+		}
+		// Compute and return a stable timestep
+		//return (mLS->GetDx()/std::abs(mTarget->GetValue(x,y,z)))/2.0f;
+		return mLS->GetDx() / std::abs(max);
+	}
 
   virtual void Propagate(float time)
   {
@@ -53,17 +63,17 @@ public :
   }
 
 
-  virtual float Evaluate(unsigned int i, unsigned int j, unsigned int k)
-  {
-	  float x = i, y = j, z = k;
+virtual float Evaluate(unsigned int i, unsigned int j, unsigned int k)
+{
+	float x = i, y = j, z = k;
 
-	  mLS->TransformGridToWorld(x,y,z);
-
-	  Vector3<float> grad(mLS->DiffXpm(i,j,k), mLS->DiffYpm(i,j,k), mLS->DiffZpm(i,j,k));
-
-    // Compute the rate of change (dphi/dt)
-	  return mTarget->GetValue(x,y,z) * grad.Length();
-  }
+	mLS->TransformGridToWorld(x,y,z);
+	float ddx2, ddy2, ddz2;
+	float targetF = mTarget->GetValue(x,y,z);
+	Godunov(i,j,k, targetF, ddx2, ddy2, ddz2);
+	// Compute the rate of change (dphi/dt)
+	return (targetF) * std::sqrt(ddx2 + ddy2 + ddz2);
+}
 
 
 };

@@ -94,7 +94,7 @@ Vector3<float> Implicit::GetGradient(float x, float y, float z) const
 	float dx = (GetValue(x + mDelta, y, z) - GetValue(x - mDelta, y, z))/ (2.0f * mDelta);
 	float dy = (GetValue(x, y + mDelta, z) - GetValue(x, y - mDelta, z))/(2.0f * mDelta);
 	float dz = (GetValue(x, y, z + mDelta) - GetValue(x, y, z - mDelta))/(2.0f * mDelta);
-	return Vector3<float>(dx, dy, dz);
+	return Vector3<float>(dx, dy, dz).Normalize();
 }
 
 

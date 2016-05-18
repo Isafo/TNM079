@@ -66,8 +66,7 @@ public :
     float ddx2, ddy2, ddz2;
     Godunov(i,j,k, this->mF, ddx2, ddy2, ddz2);
 	// Compute the rate of change (dphi/dt)
-	return -this->mF*std::sqrt(ddx2*ddx2 + ddy2*ddy2 + ddz2*ddz2); 
-
+	return -this->mF*std::sqrt(ddx2 + ddy2 + ddz2); 
   }
 
 
