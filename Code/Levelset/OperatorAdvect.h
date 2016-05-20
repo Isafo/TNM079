@@ -39,9 +39,8 @@ public :
 	// Compute and return a stable timestep
 	// (Hint: Function3D::GetMaxValue())
 	  Vector3<float> maxVec = this->mVectorField->GetMaxValue();
-	  float maxDim = std::max(std::max(maxVec[0], maxVec[1]), maxVec[2]);
-	  
-	  return (this->mLS->GetDx() / maxDim)/2.0f;
+	  float maxDim = std::max(std::max(std::abs(maxVec[0]), std::abs(maxVec[1])), std::abs(maxVec[2]));
+	  return (mLS->GetDx() / maxDim)*0.9f;
   }
 
   virtual void Propagate(float time)
@@ -73,23 +72,23 @@ public :
 	  Vector3<float> V = this->mVectorField->GetValue(x,y,z);
 	  
 	  if(V[0] > 0)
-		  dx = mLS->DiffXp(i,j,k);
-	  else if(V[0] < 0)
 		  dx = mLS->DiffXm(i,j,k);
+	  else if(V[0] < 0)
+		  dx = mLS->DiffXp(i,j,k);
 	  else
 		  dx = 0.0f;
 
 	  if(V[1] > 0)
-		  dy = mLS->DiffYp(i,j,k);
-	  else if(V[1] < 0)
 		  dy = mLS->DiffYm(i,j,k);
+	  else if(V[1] < 0)
+		  dy = mLS->DiffYp(i,j,k);
 	  else
 		  dy = 0.0f;
 
 	  if(V[2] > 0)
-		  dz = mLS->DiffZp(i,j,k);
-	  else if(V[2] < 0)
 		  dz = mLS->DiffZm(i,j,k);
+	  else if(V[2] < 0)
+		  dz = mLS->DiffZp(i,j,k);
 	  else
 		  dz = 0.0f;
 
