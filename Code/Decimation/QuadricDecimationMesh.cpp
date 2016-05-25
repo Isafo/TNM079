@@ -207,8 +207,12 @@ Matrix4x4<float> QuadricDecimationMesh::createQuadricForVert(unsigned int indx) 
 
   std::vector<unsigned int> nFaces = FindNeighborFaces(indx);
 
-  for(const auto& currFace : nFaces){
+  /*for(const auto& currFace : nFaces){
 	 Q += createQuadricForFace(currFace);
+  }*/
+
+  for(int i = 0; i < nFaces.size(); i++){
+	 Q += createQuadricForFace(nFaces[i]);
   }
 
   return Q;
